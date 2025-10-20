@@ -15,44 +15,41 @@ datasource db {
 }
 
 model Users {
-  id String @id @default(uuid())
-  name String
-  email String? @unique
-  cellphone String @unique
-  first_access Boolean @default(true)
-  password String
-  active Boolean @default(true)
-  user_roles UserRoles[]
-  user_companies UserCompanies[]
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  id            String             @id @default(uuid())
+  name          String
+  email         String?            @unique
+  cellphone     String             @unique
+  first_access  Boolean            @default(true)
+  password      String?
+  active        Boolean            @default(true)
+  company_roles UserCompanyRoles[]
+  createdAt     DateTime           @default(now())
+  updatedAt     DateTime           @updatedAt
 }
 
 model Roles {
-  id String @id @default(uuid())
-  name String
-  user_roles UserRoles[]
-}
-
-model UserRoles {
-  id String @id @default(uuid())
-  roles Roles @relation(fields: [role_id], references: [id])
-  role_id String
-  users Users @relation(fields: [user_id], references: [id])
-  user_id String
+  id              String             @id @default(uuid())
+  name            String             @unique
+  user_company_id UserCompanyRoles[]
 }
 
 model Companies {
-  id String @id @default(uuid())
-  name String
-  description String
-  user_companies UserCompanies[]
+  id              String             @id @default(uuid())
+  name            String
+  description     String
+  user_company_id UserCompanyRoles[]
 }
 
-model UserCompanies {
-  id String @id @default(uuid())
-  users Users @relation(fields: [user_id], references: [id])
+model UserCompanyRoles {
+  id      String @id @default(uuid())
+  user    Users  @relation(fields: [user_id], references: [id])
   user_id String
-  companies  Companies @relation(fields: [company_id], references: [id])
+
+  company    Companies @relation(fields: [company_id], references: [id])
   company_id String
+
+  role    Roles  @relation(fields: [role_id], references: [id])
+  role_id String
+
+  @@unique([user_id, company_id])
 }
