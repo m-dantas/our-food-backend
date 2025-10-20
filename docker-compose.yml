@@ -1,5 +1,3 @@
-version: '3.5'
-
 services:
   postgres-our-food:
     image: postgres:latest
@@ -25,10 +23,12 @@ services:
     environment:
       PGADMIN_DEFAULT_EMAIL: ${DB_ADMIN_EMAIL}
       PGADMIN_DEFAULT_PASSWORD: ${DB_PASSWORD}
+    volumes:
+      - pgadmin:/data/pgadmin4
     ports:
       - '8081:80'
     depends_on:
-      - postgres
+      - postgres-our-food
     networks:
       - postgres-our-food
 
@@ -38,3 +38,4 @@ networks:
 
 volumes:
   postgres:
+  pgadmin:
