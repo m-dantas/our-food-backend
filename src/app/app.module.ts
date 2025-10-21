@@ -6,13 +6,14 @@ import { AppService } from './app.service';
 
 // # Modules / Endpoints
 import { RolesModule } from 'src/roles/roles.module';
+import { CompanyModule } from 'src/company/company.module';
 
 // # Commons
 import { ResponseInterceptor } from 'src/common/interceptors/response.interceptors';
 import { AllExceptionsFilter } from 'src/common/filters/all-exceptions.filter';
 
 @Module({
-  imports: [RolesModule],
+  imports: [RolesModule, CompanyModule],
   controllers: [AppController],
   providers: [
     AppService,
