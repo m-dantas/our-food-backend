@@ -11,11 +11,11 @@ import { CompanyModule } from 'src/company/company.module';
 // # Commons
 import { ResponseInterceptor } from 'src/common/interceptors/response.interceptors';
 import { AllExceptionsFilter } from 'src/common/filters/all-exceptions.filter';
-import { AdminUsersCompaniesModule } from 'src/users/admin-users-companies.module';
+import { UsersModule } from 'src/users/users.module';
 import { AuthModule } from 'src/auth/auth.module';
 
 @Module({
-  imports: [RolesModule, CompanyModule, AdminUsersCompaniesModule, AuthModule],
+  imports: [RolesModule, CompanyModule, UsersModule, AuthModule],
   controllers: [AppController],
   providers: [
     AppService,

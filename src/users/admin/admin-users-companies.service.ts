@@ -1,8 +1,8 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
-import { CreateAdminUsersCompanies } from './dto/create-admin-users-companies.dto';
+import { CreateAdminUsersCompanies } from '../dto/create-admin-users-companies.dto';
 import { HashingServiceProtocol } from 'src/auth/hash/hashing.service';
-import { userFields } from './fields/select-fields-users-companies';
+import { userFields } from '../fields/select-fields-users-companies';
 
 @Injectable()
 export class AdminUsersCompaniesService {
@@ -80,7 +80,24 @@ export class AdminUsersCompaniesService {
   async getAllUsers() {
     try {
       const users = await this.prisma.users.findMany({
-        select: userFields,
+        select: {
+          ...userFields,
+          company_roles: {
+            omit: {
+              company_id: true,
+              role_id: true,
+              user_id: true,
+            },
+            include: {
+              company: true,
+              role: {
+                select: {
+                  name: true,
+                },
+              },
+            },
+          },
+        },
       });
       return users;
     } catch (error) {

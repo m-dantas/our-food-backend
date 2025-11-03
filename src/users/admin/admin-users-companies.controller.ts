@@ -7,7 +7,7 @@ import {
   Post,
   Put,
 } from '@nestjs/common';
-import { CreateAdminUsersCompanies } from './dto/create-admin-users-companies.dto';
+import { CreateAdminUsersCompanies } from '../dto/create-admin-users-companies.dto';
 import { AdminUsersCompaniesService } from './admin-users-companies.service';
 
 @Controller('admin/users')
