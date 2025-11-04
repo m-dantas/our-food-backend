@@ -1,7 +1,7 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { CreateAdminUsersCompanies } from '../dto/create-admin-users-companies.dto';
-import { HashingServiceProtocol } from 'src/auth/hash/hashing.service';
+import { HashingServiceProtocol } from 'src/auth/common/hash/hashing.service';
 import { userFields } from '../fields/select-fields-users-companies';
 
 @Injectable()
@@ -46,7 +46,7 @@ export class AdminUsersCompaniesService {
 
         const role = await tx.roles.findFirst({
           where: {
-            name: 'MASTER',
+            name: 'MOTOBOY',
           },
         });
 

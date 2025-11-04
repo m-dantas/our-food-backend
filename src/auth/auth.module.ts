@@ -1,17 +1,18 @@
-import { Global, Module } from '@nestjs/common';
-import { HashingServiceProtocol } from './hash/hashing.service';
-import { BCryptService } from './hash/bcrypt.service';
+import { forwardRef, Global, Module } from '@nestjs/common';
+import { HashingServiceProtocol } from './common/hash/hashing.service';
+import { BCryptService } from './common/hash/bcrypt.service';
+import { AdminAuthModule } from './admin/admin-auth.module';
 
 @Global()
 @Module({
-  imports: [],
+  imports: [forwardRef(() => AdminAuthModule)],
   providers: [
     {
       provide: HashingServiceProtocol,
       useClass: BCryptService,
     },
   ],
-  exports: [HashingServiceProtocol],
+  exports: [HashingServiceProtocol, AdminAuthModule],
   controllers: [],
 })
 export class AuthModule {}
