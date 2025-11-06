@@ -7,8 +7,9 @@ import {
   Post,
   Put,
 } from '@nestjs/common';
-import { CreateAdminUsersCompanies } from '../dto/create-admin-users-companies.dto';
+import { CreateUserWithCompanyDTO } from '../dto/create-user-with-company.dto';
 import { AdminUsersCompaniesService } from './admin-users-companies.service';
+// import { CreateUserToCompanyDTO } from '../dto/create-user-to-company.dto';
 
 @Controller('admin/users')
 export class AdminUsersCompaniesController {
@@ -21,9 +22,14 @@ export class AdminUsersCompaniesController {
     return await this.usersAdminCompanies.getAllUsers();
   }
 
-  @Post()
-  async create(@Body() body: CreateAdminUsersCompanies) {
-    return await this.usersAdminCompanies.createUser(body);
+  // @Post()
+  // async createUserToCompany(@Body() body: CreateUserToCompanyDTO) {
+  //   return await this.usersAdminCompanies.createUserToCompany(body);
+  // }
+
+  @Post('/with/company')
+  async createWithCompany(@Body() body: CreateUserWithCompanyDTO) {
+    return await this.usersAdminCompanies.createUserWithCompany(body);
   }
 
   @Put('/status/:id')

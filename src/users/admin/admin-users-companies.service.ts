@@ -1,8 +1,9 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
-import { CreateAdminUsersCompanies } from '../dto/create-admin-users-companies.dto';
+import { CreateUserWithCompanyDTO } from '../dto/create-user-with-company.dto';
 import { HashingServiceProtocol } from 'src/auth/common/hash/hashing.service';
 import { userFields } from '../fields/select-fields-users-companies';
+import { ERoles } from 'src/common/enums/roles.enum';
 
 @Injectable()
 export class AdminUsersCompaniesService {
@@ -11,10 +12,11 @@ export class AdminUsersCompaniesService {
     private readonly hashingService: HashingServiceProtocol,
   ) {}
 
-  async createUser(bodyUser: CreateAdminUsersCompanies) {
+  async createUserWithCompany(bodyUser: CreateUserWithCompanyDTO) {
     try {
       const user = await this.prisma.$transaction(async (tx) => {
-        const passwordHash = await this.hashingService.hash(bodyUser.password);
+        const randomPassword = this.hashingService.generatePassword(12);
+        const passwordHash = await this.hashingService.hash(randomPassword);
         const newUser = await tx.users.create({
           data: {
             name: bodyUser.name,
@@ -46,7 +48,7 @@ export class AdminUsersCompaniesService {
 
         const role = await tx.roles.findFirst({
           where: {
-            name: 'MOTOBOY',
+            name: ERoles.ADMIN,
           },
         });
 
