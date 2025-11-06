@@ -13,9 +13,20 @@ import { ResponseInterceptor } from 'src/common/interceptors/response.intercepto
 import { AllExceptionsFilter } from 'src/common/filters/all-exceptions.filter';
 import { UsersModule } from 'src/users/users.module';
 import { AuthModule } from 'src/auth/auth.module';
+import { ConfigModule } from '@nestjs/config';
+import { validateEnvironments } from './config/app.config';
 
 @Module({
-  imports: [RolesModule, CompanyModule, UsersModule, AuthModule],
+  imports: [
+    ConfigModule.forRoot({
+      isGlobal: true,
+      validate: validateEnvironments,
+    }),
+    RolesModule,
+    CompanyModule,
+    UsersModule,
+    AuthModule,
+  ],
   controllers: [AppController],
   providers: [
     AppService,
