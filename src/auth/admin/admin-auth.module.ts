@@ -1,20 +1,14 @@
-import { Global, Module } from '@nestjs/common';
+import { Module } from '@nestjs/common';
 import { AdminAuthController } from './admin-auth.controller';
 import { PrismaModule } from 'src/prisma/prisma.module';
-import { ConfigModule } from '@nestjs/config';
-import { jwtConfig } from '../common/config/jwt.config';
-import { JwtModule } from '@nestjs/jwt';
 import { HashingServiceProtocol } from '../common/hash/hashing.service';
 import { BCryptService } from '../common/hash/bcrypt.service';
 import { AdminAuthService } from './admin-auth.service';
+import { ConfigModule } from '@nestjs/config';
+import { JwtModule } from '@nestjs/jwt';
 
-@Global()
 @Module({
-  imports: [
-    PrismaModule,
-    ConfigModule.forFeature(jwtConfig('admin')),
-    JwtModule.registerAsync(jwtConfig('admin').asProvider()),
-  ],
+  imports: [PrismaModule, ConfigModule, JwtModule],
   providers: [
     {
       provide: HashingServiceProtocol,
@@ -22,7 +16,7 @@ import { AdminAuthService } from './admin-auth.service';
     },
     AdminAuthService,
   ],
-  exports: [HashingServiceProtocol, JwtModule, ConfigModule],
+  exports: [HashingServiceProtocol, ConfigModule, JwtModule],
   controllers: [AdminAuthController],
 })
 export class AdminAuthModule {}

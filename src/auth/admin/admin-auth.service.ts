@@ -1,75 +1,36 @@
-import { HttpException, HttpStatus, Inject, Injectable } from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { SignInDTO } from '../dto/signin.dto';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { HashingServiceProtocol } from '../common/hash/hashing.service';
-import { jwtConfig } from '../common/config/jwt.config';
-import { ConfigFactory, type ConfigType } from '@nestjs/config';
-import { JwtService, JwtSignOptions } from '@nestjs/jwt';
+import { ConfigService } from '@nestjs/config';
+import { JwtService } from '@nestjs/jwt';
+import { AuthBase } from '../auth-base.service';
+import { ERoles } from 'src/common/enums/roles.enum';
 
 @Injectable()
-export class AdminAuthService {
+export class AdminAuthService extends AuthBase {
   constructor(
-    @Inject(jwtConfig('admin').KEY)
-    private readonly jwtConfiguration: ConfigType<
-      ConfigFactory<JwtSignOptions>
-    >,
-    private readonly prisma: PrismaService,
-    private readonly hashingService: HashingServiceProtocol,
-    private readonly jwtService: JwtService,
-  ) {}
+    configService: ConfigService,
+    prisma: PrismaService,
+    hashingService: HashingServiceProtocol,
+    jwtService: JwtService,
+  ) {
+    super(configService, prisma, hashingService, jwtService);
+  }
 
   async authenticate(body: SignInDTO) {
     try {
-      const role = await this.prisma.roles.findFirst({
-        where: {
-          name: 'MASTER',
+      const role = await this.validateRole(ERoles.ADMIN);
+      const user = await this.validateUser(role.id, body.email);
+      await this.validatePassword(body.password, user.password!);
+
+      const token = await this.signAsyncToken(user.id, role.id);
+      return {
+        user: {
+          name: user.name,
         },
-      });
-
-      if (!role) {
-        throw new HttpException('Failed to login', HttpStatus.BAD_REQUEST);
-      }
-
-      const user = await this.prisma.users.findFirst({
-        where: {
-          email: body.email,
-          active: true,
-          company_roles: {
-            some: {
-              role_id: role.id,
-            },
-          },
-        },
-      });
-
-      if (!user) {
-        throw new HttpException('Access Denied', HttpStatus.UNAUTHORIZED);
-      }
-
-      const passwordValid = await this.hashingService.compare(
-        body.password,
-        user.password!,
-      );
-
-      if (!passwordValid) {
-        console.log('aqui');
-        throw new HttpException('Access Denied', HttpStatus.UNAUTHORIZED);
-      }
-
-      const token = await this.jwtService.signAsync(
-        {
-          sub: user.id,
-          role: role.id,
-        },
-        {
-          secret: this.jwtConfiguration.secret,
-          expiresIn: this.jwtConfiguration.expiresIn,
-          audience: this.jwtConfiguration.audience,
-          issuer: this.jwtConfiguration.issuer,
-        },
-      );
-
-      return token;
+        token,
+      };
     } catch (error) {
       console.log(error);
       throw new HttpException('Failed to login', HttpStatus.BAD_REQUEST);

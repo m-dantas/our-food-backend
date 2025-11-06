@@ -4,5 +4,3 @@ export interface IJwtRegister {
   issuer: string;
   jwtTtl: string;
 }
-
-export type TJwt = 'client' | 'admin' | 'company';
