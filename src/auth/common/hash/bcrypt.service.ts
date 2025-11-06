@@ -1,3 +1,4 @@
+import { randomBytes } from 'node:crypto';
 import { HashingServiceProtocol } from './hashing.service';
 import * as bcrypt from 'bcryptjs';
 
@@ -8,6 +9,10 @@ export class BCryptService extends HashingServiceProtocol {
   }
 
   async compare(password: string, passwordHash: string): Promise<boolean> {
-    return bcrypt.compare(password, passwordHash);
+    return await bcrypt.compare(password, passwordHash);
+  }
+
+  generatePassword(length: number): string {
+    return randomBytes(length).toString('base64').slice(0, length);
   }
 }
