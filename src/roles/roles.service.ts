@@ -1,15 +1,15 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
-import { PrismaService } from 'src/prisma/prisma.service';
+import { RolesRepository } from 'src/repositories/roles.repository';
 import { CreateRolesDTO } from './dto/create-roles.dto';
 import { UpdateRolesDTO } from './dto/update-roles.dto';
 
 @Injectable()
 export class RolesService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(private readonly repository: RolesRepository) {}
 
   async getAllRoles() {
     try {
-      const roles = await this.prisma.roles.findMany();
+      const roles = await this.repository.findMany();
       return roles;
     } catch (error) {
       console.log(error);
@@ -22,19 +22,7 @@ export class RolesService {
 
   async getFindOneRole(role_id: string) {
     try {
-      const role = await this.prisma.roles.findFirst({
-        where: {
-          id: role_id,
-        },
-      });
-
-      if (!role) {
-        throw new HttpException(
-          'Failed to list a single role',
-          HttpStatus.BAD_REQUEST,
-        );
-      }
-
+      const role = await this.repository.findFirst(role_id);
       return role;
     } catch (error) {
       console.log(error);
@@ -47,9 +35,7 @@ export class RolesService {
 
   async createRole(bodyRole: CreateRolesDTO) {
     try {
-      await this.prisma.roles.create({
-        data: bodyRole,
-      });
+      await this.repository.create(bodyRole);
     } catch (error) {
       console.log(error);
       throw new HttpException(
@@ -61,18 +47,7 @@ export class RolesService {
 
   async deleteRole(role_id: string) {
     try {
-      const role = await this.prisma.roles.findFirst({
-        where: { id: role_id },
-      });
-
-      if (!role) {
-        throw new HttpException(
-          'Failed to delete a role',
-          HttpStatus.NOT_FOUND,
-        );
-      }
-
-      await this.prisma.roles.delete({ where: { id: role_id } });
+      await this.repository.delete(role_id);
     } catch (error) {
       console.log(error);
       throw new HttpException(
@@ -84,23 +59,7 @@ export class RolesService {
 
   async updateRole(role_id: string, bodyRole: UpdateRolesDTO) {
     try {
-      const role = await this.prisma.roles.findFirst({
-        where: { id: role_id },
-      });
-
-      if (!role) {
-        throw new HttpException(
-          'Failed to update a role',
-          HttpStatus.NOT_FOUND,
-        );
-      }
-
-      await this.prisma.roles.update({
-        where: { id: role_id },
-        data: {
-          name: bodyRole.name ?? role?.name,
-        },
-      });
+      await this.repository.update(role_id, bodyRole);
     } catch (error) {
       console.log(error);
       throw new HttpException(

@@ -1,6 +1,6 @@
 import { JwtService } from '@nestjs/jwt';
 import { HttpException, HttpStatus } from '@nestjs/common';
-import { PrismaService } from 'src/prisma/prisma.service';
+import { PrismaService } from 'src/infra/prisma/prisma.service';
 import { HashingServiceProtocol } from './common/hash/hashing.service';
 import { TRoles } from 'src/common/@types/roles';
 import { ConfigService } from '@nestjs/config';

@@ -1,5 +1,5 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
-import { PrismaService } from 'src/prisma/prisma.service';
+import { PrismaService } from 'src/infra/prisma/prisma.service';
 import { CreateUserWithCompanyDTO } from '../dto/create-user-with-company.dto';
 import { HashingServiceProtocol } from 'src/auth/common/hash/hashing.service';
 import { userFields } from '../fields/select-fields-users-companies';
@@ -16,6 +16,7 @@ export class AdminUsersCompaniesService {
     try {
       const user = await this.prisma.$transaction(async (tx) => {
         const randomPassword = this.hashingService.generatePassword(12);
+        console.log(randomPassword);
         const passwordHash = await this.hashingService.hash(randomPassword);
         const newUser = await tx.users.create({
           data: {

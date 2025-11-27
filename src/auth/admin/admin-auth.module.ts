@@ -1,6 +1,6 @@
 import { Module } from '@nestjs/common';
 import { AdminAuthController } from './admin-auth.controller';
-import { PrismaModule } from 'src/prisma/prisma.module';
+import { PrismaModule } from 'src/infra/prisma/prisma.module';
 import { HashingServiceProtocol } from '../common/hash/hashing.service';
 import { BCryptService } from '../common/hash/bcrypt.service';
 import { AdminAuthService } from './admin-auth.service';
