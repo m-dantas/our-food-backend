@@ -1,8 +1,4 @@
-import {
-  Prisma,
-  // Prisma,
-  Roles,
-} from 'generated/prisma';
+import { Prisma, Roles } from 'generated/prisma';
 import { PrismaService } from '../../infra/prisma/prisma.service';
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { RolesRepository } from '../roles.repository';
