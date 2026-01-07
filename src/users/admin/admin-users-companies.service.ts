@@ -1,149 +1,30 @@
-import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
-import { PrismaService } from 'src/infra/prisma/prisma.service';
+import { Injectable } from '@nestjs/common';
 import { CreateUserWithCompanyDTO } from '../dto/create-user-with-company.dto';
-import { HashingServiceProtocol } from 'src/auth/common/hash/hashing.service';
-import { userFields } from '../fields/select-fields-users-companies';
-import { ERoles } from 'src/common/enums/roles.enum';
+import { UsersAdminRepository } from 'src/repositories/users-admin.repository';
 
 @Injectable()
 export class AdminUsersCompaniesService {
-  constructor(
-    private readonly prisma: PrismaService,
-    private readonly hashingService: HashingServiceProtocol,
-  ) {}
+  constructor(private readonly usersAdminCompanie: UsersAdminRepository) {}
 
-  async createUserWithCompany(bodyUser: CreateUserWithCompanyDTO) {
-    try {
-      const user = await this.prisma.$transaction(async (tx) => {
-        const randomPassword = this.hashingService.generatePassword(12);
-        console.log(randomPassword);
-        const passwordHash = await this.hashingService.hash(randomPassword);
-        const newUser = await tx.users.create({
-          data: {
-            name: bodyUser.name,
-            email: bodyUser.email,
-            password: passwordHash,
-            cellphone: bodyUser.cellphone,
-          },
-          select: userFields,
-        });
+  async createUserWithCompany(body: CreateUserWithCompanyDTO) {
+    const bodyUser = {
+      name: body.name,
+      cellphone: body.cellphone,
+      email: body.email,
+      active: true,
+    };
+    const user = await this.usersAdminCompanie.create(bodyUser, body.company);
 
-        if (!newUser)
-          throw new HttpException(
-            'Failed to create an user',
-            HttpStatus.BAD_REQUEST,
-          );
-
-        const company = await tx.companies.create({
-          data: {
-            name: bodyUser.company.name,
-            description: bodyUser.company.description,
-          },
-        });
-
-        if (!company)
-          throw new HttpException(
-            'Failed to create an user',
-            HttpStatus.BAD_REQUEST,
-          );
-
-        const role = await tx.roles.findFirst({
-          where: {
-            name: ERoles.ADMIN,
-          },
-        });
-
-        if (!role)
-          throw new HttpException(
-            'Failed to create an user',
-            HttpStatus.BAD_REQUEST,
-          );
-
-        await tx.userCompanyRoles.create({
-          data: {
-            company_id: company.id,
-            user_id: newUser.id,
-            role_id: role.id,
-          },
-        });
-
-        return newUser;
-      });
-
-      return user;
-    } catch (error) {
-      console.log(error);
-      throw new HttpException(
-        'Failed to create an user',
-        HttpStatus.BAD_REQUEST,
-      );
-    }
+    return user;
   }
 
   async getAllUsers() {
-    try {
-      const users = await this.prisma.users.findMany({
-        select: {
-          ...userFields,
-          company_roles: {
-            omit: {
-              company_id: true,
-              role_id: true,
-              user_id: true,
-            },
-            include: {
-              company: true,
-              role: {
-                select: {
-                  name: true,
-                },
-              },
-            },
-          },
-        },
-      });
-      return users;
-    } catch (error) {
-      console.log(error);
-      throw new HttpException(
-        'Failed to get all users',
-        HttpStatus.BAD_REQUEST,
-      );
-    }
+    const users = await this.usersAdminCompanie.findMany();
+    return users;
   }
 
   async changeStatus(id: string) {
-    try {
-      const user = await this.prisma.users.findUnique({
-        where: {
-          id,
-        },
-      });
-
-      if (!user) {
-        throw new HttpException(
-          'Failed to change user status',
-          HttpStatus.BAD_REQUEST,
-        );
-      }
-
-      const updatedUser = await this.prisma.users.update({
-        data: {
-          active: !user.active,
-        },
-        where: {
-          id,
-        },
-        select: userFields,
-      });
-
-      return updatedUser;
-    } catch (error) {
-      console.log(error);
-      throw new HttpException(
-        'Failed to change user status',
-        HttpStatus.BAD_REQUEST,
-      );
-    }
+    const user = await this.usersAdminCompanie.changeStatus(id);
+    return user;
   }
 }
